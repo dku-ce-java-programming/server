@@ -1,3 +1,25 @@
 spring:
   application:
     name: server
+  sql:
+    init:
+      encoding: UTF-8
+  datasource:
+    url: ${DB_URL}
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+server:
+  forward-headers-strategy: framework
+
+key:
+  gemini: ${GEMINI_API_KEY}
