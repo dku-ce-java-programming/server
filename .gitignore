@@ -44,3 +44,9 @@ out/
 
 ### Database ###
 *.db
+
+### API Test ###
+*.http
+
+### Prompt ###
+src/main/java/dku/server/domain/chat/prompt/Template.java
