@@ -22,7 +22,9 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다"),
 
     // Chat
+    CONVERSATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대화를 찾을 수 없습니다"),
     CONVERSATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 대화입니다"),
+    CONVERSATION_FAILED_TO_GENERATE_TITLE(HttpStatus.INTERNAL_SERVER_ERROR, "대화 제목 생성에 실패했습니다"),
 
     ;
 
