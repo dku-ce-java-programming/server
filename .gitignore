@@ -38,3 +38,9 @@ out/
 
 ### macOS ###
 .DS_Store
+
+### Environment ###
+.env
+
+### Database ###
+*.db
