@@ -5,6 +5,8 @@ import dku.server.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -24,16 +26,33 @@ public class Conversation extends BaseEntity {
 
     private String title;
 
-    public static Conversation create(
-            UUID id,
-            Member member,
-            String title
+    @OneToMany(
+            mappedBy = "conversation",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @Builder.Default
+    private List<ConversationMessage> conversationMessages = new ArrayList<>();
+
+    public static Conversation createEmpty(
+            Member member
     ) {
         return Conversation.builder()
-                .id(id)
+                .id(UUID.randomUUID())
                 .member(member)
-                .title(title)
                 .build();
+    }
+
+    public void addSystemMessage() {
+        ConversationMessage systemMessage = ConversationMessage.createSystemMessage();
+        this.conversationMessages.add(systemMessage);
+        systemMessage.setConversationInternal(this);
+    }
+
+    public void addMessage(ConversationMessage message) {
+        this.conversationMessages.add(message);
+        message.setConversationInternal(this);
     }
 
     public void updateTitle(String title) {

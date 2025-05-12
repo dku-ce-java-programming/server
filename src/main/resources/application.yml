@@ -4,12 +4,14 @@ spring:
   sql:
     init:
       encoding: UTF-8
+      mode: never
   datasource:
     url: ${DB_URL}
     username: sa
     password:
     driver-class-name: org.h2.Driver
   jpa:
+    defer-datasource-initialization: true
     open-in-view: false
     hibernate:
       ddl-auto: update
@@ -17,9 +19,23 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+  ai:
+    openai:
+      base-url: ${LLM_OPENAI_BASE_URL}
+      api-key: ${LLM_API_KEY}
+      chat:
+        completions-path: /chat/completions
+
+llm:
+  model:
+    standard:
+      name: ${LLM_STANDARD_MODEL}
+      temperature: ${LLM_STANDARD_TEMPERATURE}
+    lite:
+      name: ${LLM_LITE_MODEL}
+      temperature: ${LLM_LITE_TEMPERATURE}
 
 server:
   forward-headers-strategy: framework
 
-key:
-  gemini: ${GEMINI_API_KEY}
+debug: false

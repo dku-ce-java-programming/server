@@ -23,10 +23,12 @@ public enum ErrorCode {
 
     // Chat
     CONVERSATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대화를 찾을 수 없습니다"),
-    CONVERSATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 대화입니다"),
-    CONVERSATION_FAILED_TO_GENERATE_TITLE(HttpStatus.INTERNAL_SERVER_ERROR, "대화 제목 생성에 실패했습니다"),
-
-    ;
+    CHAT_TOOL_CALLING_CLASSIFY_QUESTION_TYPE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "질문 유형 분류 도구 호출에 실패했습니다"),
+    CHAT_TOOL_CALLING_EXTRACT_SCHOOL_NAME_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "학교 이름 추출 도구 호출에 실패했습니다"),
+    CHAT_TOOL_CALLING_EXTRACT_COLUMNS_MAPPING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "열 추출 도구 호출중 문자열의 List 변환에 실패했습니다"),
+    CHAT_TOOL_CALLING_EXTRACT_COLUMNS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "열 추출 도구 호출에 실패했습니다"),
+    CHAT_TOOL_CALLING_RETRIEVE_CONTEXT_MAPPING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "추출한 맥락 데이터의 JSON 변환에 실패했습니다"),
+    INVALID_MESSAGE_ROLE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 메시지 역할입니다");
 
     private final HttpStatus httpStatus;
     private final String message;
