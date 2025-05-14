@@ -16,7 +16,7 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    private String oauthId;
+    private String oidcId;
 
     private String email;
 
@@ -28,9 +28,17 @@ public class Member extends BaseEntity {
             String name
     ) {
         return Member.builder()
-                .oauthId(oauthId)
+                .oidcId(oauthId)
                 .email(email)
                 .name(name)
                 .build();
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 }

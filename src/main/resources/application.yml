@@ -19,6 +19,28 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USER}
+      password: ${REDIS_PASSWORD}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+              - openid
+  session:
+    redis:
+      namespace: dku-exchange:session
+    timeout: ${SESSION_TIMEOUT}
   ai:
     openai:
       base-url: ${LLM_OPENAI_BASE_URL}

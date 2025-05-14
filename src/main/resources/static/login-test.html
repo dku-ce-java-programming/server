@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>테스트 로그인 페이지</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+          rel="stylesheet"/>
+    <style>
+        :root {
+            --primary-color: #4285F4;
+            --primary-hover: #357ae8;
+            --success-color: #34d399;
+            --success-bg: #d1fae5;
+            --error-color: #ef4444;
+            --error-bg: #fee2e2;
+            --info-color: #3b82f6;
+            --info-bg: #e0f2fe;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-900: #1f2937;
+            --radius: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--gray-100);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: sans-serif;
+            color: var(--gray-900);
+            line-height: 1.5;
+            padding: 1rem;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 360px;
+            padding: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            background: #fff;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .btn i {
+            flex-shrink: 0;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            background: var(--gray-100);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .result-container {
+            margin-top: 1rem;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .result {
+            padding: 1rem;
+            border-radius: var(--radius);
+            background: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            word-break: break-word;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+
+        .result.success {
+            border-color: var(--success-color);
+            background: var(--success-bg);
+            color: #065f46;
+        }
+
+        .result.error {
+            border-color: var(--error-color);
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+
+        .result.info {
+            border-color: var(--info-color);
+            background: var(--info-bg);
+            color: var(--info-color);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="login-header">
+        <h1>로그인</h1>
+        <p>테스트 로그인 페이지입니다.</p>
+    </div>
+    <div class="btn-group">
+        <button class="btn btn-primary" id="google-login-btn">
+            <i class="fab fa-google"></i>
+            <span>구글 로그인</span>
+        </button>
+        <button class="btn" id="me-btn">
+            <i class="fas fa-user"></i>
+            <span>내 정보 조회</span>
+        </button>
+        <button class="btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>로그아웃</span>
+        </button>
+    </div>
+    <div class="result-container">
+        <div class="result" id="result">결과가 여기 표시됩니다.</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // API 엔드포인트
+        const API = {
+            ME: '/members',
+            LOGOUT: '/auth/logout',
+            GOOGLE_AUTH: '/oauth2/authorization/google'
+        };
+
+        // DOM 요소
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const meBtn = document.getElementById('me-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const resultDiv = document.getElementById('result');
+
+        // 결과 표시 함수
+        function showResult(message, type = 'info') {
+            resultDiv.innerText = message;
+            resultDiv.className = `result ${type}`;
+        }
+
+        // JSON 형식으로 결과 표시
+        function showJsonResult(data, type = 'success') {
+            resultDiv.innerText = JSON.stringify(data, null, 2);
+            resultDiv.className = `result ${type}`;
+        }
+
+        // 원하는 형태로 결과 표시
+        function showMemberInfo(userData) {
+            const lines = [
+                `id: ${userData.memberId}`,
+                `name: "${userData.name}"`,
+                `email: "${userData.email}"`
+            ];
+            resultDiv.innerText = lines.join('\n');
+            resultDiv.className = 'result success';
+        }
+
+        // 구글 로그인 버튼 클릭 이벤트
+        googleLoginBtn.addEventListener('click', () => {
+            const baseUrl = window.location.origin;
+            const currentUrl = window.location.href;
+            const encodedRedirectUrl = encodeURIComponent(currentUrl);
+            const googleAuthUrl = `${baseUrl}${API.GOOGLE_AUTH}?next=${encodedRedirectUrl}`;
+
+            showResult('구글 로그인 페이지로 이동합니다...', 'info');
+            window.location.href = googleAuthUrl;
+        });
+
+        // 내 정보 조회 버튼 클릭 이벤트
+        meBtn.addEventListener('click', async () => {
+            showResult('정보를 조회하는 중입니다...', 'info');
+
+            try {
+                const response = await fetch(API.ME, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {'Accept': 'application/json'}
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `조회 실패 (${response.status})`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData?.message) errorMsg += ': ' + errorData.message;
+                    } catch {
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                // 서버에서 받은 원본 데이터
+                const userData = await response.json();
+
+                // 원하는 형태로 출력
+                showMemberInfo(userData);
+            } catch (error) {
+                showResult(error.message, 'error');
+            }
+        });
+
+        // 로그아웃 버튼 클릭 이벤트
+        logoutBtn.addEventListener('click', async () => {
+            showResult('로그아웃 중입니다...', 'info');
+
+            try {
+                const response = await fetch(API.LOGOUT, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) throw new Error(`로그아웃 실패 (${response.status})`);
+
+                showJsonResult({success: true, message: "로그아웃 성공"});
+            } catch (error) {
+                showResult(error.message, 'error');
+            }
+        });
+
+        // URL 파라미터 확인
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('loginSuccess')) {
+            showJsonResult({success: true, message: "로그인 성공"});
+        } else if (urlParams.has('loginError')) {
+            showResult('로그인 중 오류가 발생했습니다.', 'error');
+        }
+    });
+</script>
+</body>
+</html>
