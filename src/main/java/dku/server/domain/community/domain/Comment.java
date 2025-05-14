@@ -4,6 +4,7 @@ import dku.server.domain.common.BaseEntity;
 import dku.server.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class Comment extends BaseEntity {
     private Comment parent;
 
     @OneToMany(mappedBy = "parent", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     @Builder.Default
     private List<Comment> children = new ArrayList<>();
 

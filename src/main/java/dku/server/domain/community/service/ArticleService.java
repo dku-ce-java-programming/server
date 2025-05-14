@@ -46,11 +46,11 @@ public class ArticleService {
 
     public List<ArticlePreviewResponse> getArticleList(Category category) {
         if (category == null) {
-            return articleRepository.findAll().stream()
+            return articleRepository.findAllWithMember().stream()
                     .map(ArticlePreviewResponse::from)
                     .toList();
         }
-        return articleRepository.findAllByCategory(category).stream()
+        return articleRepository.findAllByCategoryWithMember(category).stream()
                 .map(ArticlePreviewResponse::from)
                 .toList();
     }

@@ -19,6 +19,9 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+          format_sql: true
+          highlight_sql: true
+    show-sql: true
   data:
     redis:
       host: ${REDIS_HOST}
