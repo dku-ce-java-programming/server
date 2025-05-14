@@ -32,11 +32,7 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
-    @OneToMany(
-            mappedBy = "parent",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "parent", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Comment> children = new ArrayList<>();
 
@@ -65,5 +61,9 @@ public class Comment extends BaseEntity {
                 .content(content)
                 .parent(parent)
                 .build();
+    }
+
+    public void update(String content) {
+        this.content = content;
     }
 }

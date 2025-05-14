@@ -25,13 +25,15 @@ public enum ErrorCode {
     CONVERSATION_NOT_FOUND(HttpStatus.NOT_FOUND, "대화를 찾을 수 없습니다"),
     CHAT_TOOL_CALLING_CLASSIFY_QUESTION_TYPE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "질문 유형 분류 도구 호출에 실패했습니다"),
     CHAT_TOOL_CALLING_EXTRACT_SCHOOL_NAME_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "학교 이름 추출 도구 호출에 실패했습니다"),
-    CHAT_TOOL_CALLING_EXTRACT_COLUMNS_MAPPING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "열 추출 도구 호출중 문자열의 List 변환에 실패했습니다"),
+    CHAT_TOOL_CALLING_EXTRACT_COLUMNS_MAPPING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,
+            "열 추출 도구 호출중 문자열의 List 변환에 실패했습니다"),
     CHAT_TOOL_CALLING_EXTRACT_COLUMNS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "열 추출 도구 호출에 실패했습니다"),
     CHAT_TOOL_CALLING_RETRIEVE_CONTEXT_MAPPING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "추출한 맥락 데이터의 JSON 변환에 실패했습니다"),
     INVALID_MESSAGE_ROLE(HttpStatus.INTERNAL_SERVER_ERROR, "유효하지 않은 메시지 역할입니다"),
 
     // Community
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다"),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다"),
 
     ;
 

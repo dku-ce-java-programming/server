@@ -1,10 +1,12 @@
 package dku.server.domain.community.domain;
 
+import dku.server.domain.common.BaseEntity;
 import dku.server.domain.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Entity
@@ -12,7 +14,7 @@ import java.util.List;
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Article {
+public class Article extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,12 +33,7 @@ public class Article {
     @Lob
     private String content;
 
-    @OneToMany(
-            mappedBy = "article",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
@@ -44,8 +41,7 @@ public class Article {
             Category category,
             Member member,
             String title,
-            String content
-    ) {
+            String content) {
         return Article.builder()
                 .category(category)
                 .member(member)
@@ -54,11 +50,17 @@ public class Article {
                 .build();
     }
 
+    public List<Comment> getRootCommentsAsc() {
+        return comments.stream()
+                .filter(c -> c.getParent() == null)
+                .sorted(Comparator.comparing(BaseEntity::getCreatedAt))
+                .toList();
+    }
+
     public void update(
             Category category,
             String title,
-            String content
-    ) {
+            String content) {
         this.category = category;
         this.title = title;
         this.content = content;

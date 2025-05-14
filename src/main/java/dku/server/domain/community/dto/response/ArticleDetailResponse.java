@@ -11,8 +11,7 @@ public record ArticleDetailResponse(
         String author,
         String title,
         String content,
-        List<CommentResponse> comments
-) {
+        List<CommentResponse> comments) {
     public static ArticleDetailResponse from(Article article) {
         return new ArticleDetailResponse(
                 article.getId(),
@@ -20,10 +19,8 @@ public record ArticleDetailResponse(
                 article.getMember().getName(),
                 article.getTitle(),
                 article.getContent(),
-                article.getComments().stream()
-                        .map(CommentResponse::from)
-                        .toList()
-        );
+                article.getRootCommentsAsc().stream()
+                        .map(CommentResponse::fromAsc)
+                        .toList());
     }
-
 }
