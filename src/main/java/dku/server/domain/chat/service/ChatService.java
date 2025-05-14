@@ -12,6 +12,8 @@ import dku.server.domain.member.domain.Member;
 import dku.server.domain.member.repository.MemberRepository;
 import dku.server.global.exception.CustomException;
 import dku.server.global.exception.ErrorCode;
+import dku.server.global.security.oidc.UserInfo;
+import dku.server.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -44,16 +46,18 @@ public class ChatService {
     private final ConversationPersistenceService conversationPersistenceService;
 
     public List<ConversationResponse> getConversations() {
-        Long memberId = 1L;
-        return conversationRepository.findAllByMemberId(memberId).stream()
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return conversationRepository.findAllByMemberId(member.getId()).stream()
                 .map(ConversationResponse::from)
                 .toList();
     }
 
     @Transactional
     public ConversationCreateResponse createConversation() {
-        Long memberId = 1L;
-        Member member = memberRepository.findById(memberId)
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         Conversation conversation = Conversation.createEmpty(member);
@@ -65,8 +69,10 @@ public class ChatService {
 
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     public Flux<String> chatCompletionStream(ChatCompletionRequest request) {
-        Long memberId = 1L;
-        Conversation conversation = conversationRepository.findByIdAndMemberId(request.conversationId(), memberId)
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Conversation conversation = conversationRepository.findByIdAndMemberId(request.conversationId(), member.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
         conversation.updateTitle(request.content());
         List<Message> messageHistory = convertToMessageHistory(conversation);
