@@ -7,6 +7,7 @@ import dku.server.domain.community.dto.response.ArticleDetailResponse;
 import dku.server.domain.community.dto.response.ArticlePreviewResponse;
 import dku.server.domain.community.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class ArticleController {
     public ResponseEntity<ArticleCreateUpdateResponse> createArticle(
             @RequestBody ArticleCreateUpdateRequest request) {
         ArticleCreateUpdateResponse response = articleService.createArticle(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping

@@ -4,6 +4,7 @@ import dku.server.domain.community.dto.request.CommentCreateRequest;
 import dku.server.domain.community.dto.response.CommentResponse;
 import dku.server.domain.community.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class CommentController {
             @RequestBody CommentCreateRequest request
     ) {
         CommentResponse response = commentService.createComment(articleId, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/{parentId}/reply")
@@ -30,7 +31,7 @@ public class CommentController {
             @RequestBody CommentCreateRequest request
     ) {
         CommentResponse response = commentService.createReply(articleId, parentId, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{commentId}")
