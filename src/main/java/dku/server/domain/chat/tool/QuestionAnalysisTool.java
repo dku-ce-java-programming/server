@@ -49,10 +49,10 @@ public class QuestionAnalysisTool {
     public String classifyQuestion(
             @ToolParam(description = "분석할 사용자의 질문") String question
     ) {
-        PromptTemplate promptTemplate = new PromptTemplate(
-                CLASSIFY_QUESTION_TYPE_TEMPLATE,
-                Map.of("question", question)
-        );
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .template(CLASSIFY_QUESTION_TYPE_TEMPLATE)
+                .variables(Map.of("question", question))
+                .build();
 
         Prompt prompt = promptTemplate.create(standardModelChatOptions);
 
@@ -107,10 +107,10 @@ public class QuestionAnalysisTool {
     private String extractSchoolName(String question) {
         List<String> distinctSchoolNames = processedArticleRepository.findDistinctSchoolNames();
 
-        PromptTemplate promptTemplate = new PromptTemplate(
-                EXTRACT_SCHOOL_NAME_TEMPLATE,
-                Map.of("question", question, "distinct_school_name_list", distinctSchoolNames)
-        );
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .template(EXTRACT_SCHOOL_NAME_TEMPLATE)
+                .variables(Map.of("question", question, "distinct_school_name_list", distinctSchoolNames))
+                .build();
 
         Prompt prompt = promptTemplate.create(standardModelChatOptions);
 
@@ -137,10 +137,10 @@ public class QuestionAnalysisTool {
      * @return 추출된 열 이름 리스트
      */
     private List<String> extractColumns(String question) {
-        PromptTemplate promptTemplate = new PromptTemplate(
-                EXTRACT_COLUMN_TEMPLATE,
-                Map.of("question", question)
-        );
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .template(EXTRACT_COLUMN_TEMPLATE)
+                .variables(Map.of("question", question))
+                .build();
 
         Prompt prompt = promptTemplate.create(standardModelChatOptions);
 
