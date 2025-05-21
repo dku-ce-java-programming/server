@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/chat")
@@ -35,5 +36,11 @@ public class ChatController {
             @RequestBody ChatCompletionRequest request
     ) {
         return chatService.chatCompletionStream(request);
+    }
+
+    @DeleteMapping("/{conversationId}")
+    public ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId) {
+        chatService.deleteConversation(conversationId);
+        return ResponseEntity.noContent().build();
     }
 }

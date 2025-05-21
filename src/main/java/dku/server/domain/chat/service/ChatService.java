@@ -29,6 +29,7 @@ import reactor.core.publisher.SignalType;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -98,6 +99,16 @@ public class ChatService {
                     }
                 });
 
+    }
+
+    @Transactional
+    public void deleteConversation(UUID conversationId) {
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Conversation conversation = conversationRepository.findByIdAndMemberId(conversationId, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
+        conversationRepository.delete(conversation);
     }
 
     private List<Message> convertToMessageHistory(Conversation conversation) {
