@@ -5,9 +5,11 @@ import dku.server.domain.chat.domain.Role;
 import dku.server.domain.chat.dto.request.ChatCompletionRequest;
 import dku.server.domain.chat.dto.response.ConversationCreateResponse;
 import dku.server.domain.chat.dto.response.ConversationResponse;
+import dku.server.domain.chat.dto.response.MessageResponse;
 import dku.server.domain.chat.repository.ConversationRepository;
 import dku.server.domain.chat.tool.ContextRetrievalTool;
 import dku.server.domain.chat.tool.QuestionAnalysisTool;
+import dku.server.domain.common.BaseEntity;
 import dku.server.domain.member.domain.Member;
 import dku.server.domain.member.repository.MemberRepository;
 import dku.server.global.exception.CustomException;
@@ -28,6 +30,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.SignalType;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -52,6 +55,21 @@ public class ChatService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return conversationRepository.findAllByMemberId(member.getId()).stream()
                 .map(ConversationResponse::from)
+                .toList();
+    }
+
+    public List<MessageResponse> getChatHistory(UUID conversationId) {
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Conversation conversation = conversationRepository.findByIdAndMemberId(conversationId, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        return conversation.getConversationMessages().stream()
+                .filter(message -> message.getRole() == Role.USER || message.getRole() == Role.ASSISTANT)
+                .sorted(Comparator.comparing(BaseEntity::getCreatedAt))
+                .map(MessageResponse::from)
                 .toList();
     }
 
@@ -94,8 +112,7 @@ public class ChatService {
                         conversationPersistenceService.saveConversationMessage(
                                 conversation.getId(),
                                 request.content(),
-                                sb.toString()
-                        );
+                                sb.toString());
                     }
                 });
 

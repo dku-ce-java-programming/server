@@ -3,6 +3,7 @@ package dku.server.domain.chat.controller;
 import dku.server.domain.chat.dto.request.ChatCompletionRequest;
 import dku.server.domain.chat.dto.response.ConversationCreateResponse;
 import dku.server.domain.chat.dto.response.ConversationResponse;
+import dku.server.domain.chat.dto.response.MessageResponse;
 import dku.server.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,11 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getConversations());
     }
 
+    @GetMapping("/{conversationId}/history")
+    public ResponseEntity<List<MessageResponse>> getChatHistory(@PathVariable UUID conversationId) {
+        return ResponseEntity.ok(chatService.getChatHistory(conversationId));
+    }
+
     @PostMapping
     public ResponseEntity<ConversationCreateResponse> createConversation() {
         return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createConversation());
@@ -33,8 +39,7 @@ public class ChatController {
 
     @PostMapping(value = "/completion", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatCompletionStream(
-            @RequestBody ChatCompletionRequest request
-    ) {
+            @RequestBody ChatCompletionRequest request) {
         return chatService.chatCompletionStream(request);
     }
 
