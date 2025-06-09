@@ -49,9 +49,6 @@ out/
 ### API Test ###
 *.http
 
-### Prompt ###
-src/main/java/dku/server/domain/chat/prompt
-
 ### Temporary Files ###
 output.md
 *.old
