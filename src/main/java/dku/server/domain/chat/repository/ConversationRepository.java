@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface ConversationRepository extends JpaRepository<Conversation, UUID> {
 
-    @Query("SELECT c FROM Conversation c WHERE c.member.id = :memberId ORDER BY c.createdAt ASC")
+    @Query("SELECT c FROM Conversation c WHERE c.member.id = :memberId ORDER BY c.createdAt DESC")
     List<Conversation> findAllByMemberId(Long memberId);
 
     @Query("SELECT c FROM Conversation c LEFT JOIN FETCH c.conversationMessages m WHERE c.id = :id AND c.member.id = :memberId ORDER BY c.createdAt ASC")
