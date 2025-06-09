@@ -50,6 +50,12 @@ public class ChatController {
         return chatService.chatCompletionStream(request);
     }
 
+    @PutMapping("/{conversationId}/generate-title")
+    public ResponseEntity<ConversationResponse> generateConversationTitle(@PathVariable UUID conversationId) {
+        ConversationResponse response = chatService.generateConversationTitle(conversationId);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{conversationId}")
     public ResponseEntity<Void> deleteConversation(@PathVariable UUID conversationId) {
         chatService.deleteConversation(conversationId);

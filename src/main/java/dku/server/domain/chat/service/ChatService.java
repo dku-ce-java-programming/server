@@ -6,6 +6,7 @@ import dku.server.domain.chat.dto.request.ChatCompletionRequest;
 import dku.server.domain.chat.dto.response.ConversationCreateResponse;
 import dku.server.domain.chat.dto.response.ConversationResponse;
 import dku.server.domain.chat.dto.response.MessageResponse;
+import dku.server.domain.chat.prompt.Template;
 import dku.server.domain.chat.repository.ConversationRepository;
 import dku.server.domain.chat.tool.ContextRetrievalTool;
 import dku.server.domain.chat.tool.QuestionAnalysisTool;
@@ -23,6 +24,8 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -137,6 +141,66 @@ public class ChatService {
         Conversation conversation = conversationRepository.findByIdAndMemberId(conversationId, member.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
         conversationRepository.delete(conversation);
+    }
+
+    @Transactional
+    public ConversationResponse generateConversationTitle(UUID conversationId) {
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Conversation conversation = conversationRepository.findByIdAndMemberId(conversationId, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        if (conversation.getTitle() != null) {
+            throw new CustomException(ErrorCode.CONVERSATION_TITLE_ALREADY_EXISTS);
+        }
+
+        String conversationContent = buildConversationContent(conversation);
+
+        PromptTemplate promptTemplate = PromptTemplate.builder()
+                .template(Template.GENERATE_CONVERSATION_TITLE_TEMPLATE)
+                .variables(Map.of("conversation", conversationContent))
+                .build();
+        Prompt prompt = promptTemplate.create(standardStreamModelChatOptions);
+        String generatedTitle;
+
+        try {
+            generatedTitle = chatClient.prompt(prompt)
+                    .call()
+                    .chatResponse()
+                    .getResult()
+                    .getOutput()
+                    .getText();
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.CHAT_TITLE_GENERATION_FAILED);
+        }
+        
+        conversation.updateTitle(refineOutput(generatedTitle));
+
+        return ConversationResponse.from(conversation);
+    }
+
+    private String buildConversationContent(Conversation conversation) {
+        return conversation.getConversationMessages().stream()
+                .filter(message -> message.getRole() == Role.USER || message.getRole() == Role.ASSISTANT)
+                .sorted(Comparator.comparing(BaseEntity::getCreatedAt))
+                .map(message -> {
+                    String roleLabel = message.getRole() == Role.USER ? "USER" : "ASSISTANT";
+                    return roleLabel + ": " + message.getContent();
+                })
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String refineOutput(String text) {
+        text = text.trim();
+        if (text.startsWith("```json")) {
+            return text.substring(7, text.length() - 3);
+        } else if (text.startsWith("```")) {
+            return text.substring(3, text.length() - 3);
+        } else {
+            return text;
+        }
     }
 
     private List<Message> convertToMessageHistory(Conversation conversation) {
