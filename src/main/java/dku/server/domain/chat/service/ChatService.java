@@ -30,7 +30,6 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.SignalType;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Comparator;
@@ -112,8 +111,7 @@ public class ChatService {
         List<Message> messageHistory = convertToMessageHistory(conversation);
 
         StringBuilder sb = new StringBuilder();
-
-        return chatClient.prompt()
+        Flux<String> llmResponseStream = chatClient.prompt()
                 .options(standardStreamModelChatOptions)
                 .messages(messageHistory)
                 .user(request.content())
@@ -122,15 +120,18 @@ public class ChatService {
                 .content()
                 .doOnNext(sb::append)
                 .publishOn(Schedulers.boundedElastic())
-                .doFinally(signalType -> {
-                    if (signalType == SignalType.ON_COMPLETE) {
-                        conversationPersistenceService.saveConversationMessage(
-                                conversation.getId(),
-                                request.content(),
-                                sb.toString());
-                    }
-                });
+                .doOnComplete(() -> {
+                    conversationPersistenceService.saveConversationMessage(
+                            conversation.getId(),
+                            request.content(),
+                            sb.toString());
+                })
+                .onErrorReturn("[ERROR]");
 
+        return Flux.just("[CONNECTED]")
+                .concatWith(llmResponseStream)
+                .concatWith(Flux.just("[DONE]"))
+                .onErrorReturn("[ERROR]");
     }
 
     @Transactional
@@ -175,7 +176,7 @@ public class ChatService {
         } catch (Exception e) {
             throw new CustomException(ErrorCode.CHAT_TITLE_GENERATION_FAILED);
         }
-        
+
         conversation.updateTitle(refineOutput(generatedTitle));
 
         return ConversationResponse.from(conversation);
