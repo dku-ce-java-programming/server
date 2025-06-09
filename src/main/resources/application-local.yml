@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${DB_URL}
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+debug: false
