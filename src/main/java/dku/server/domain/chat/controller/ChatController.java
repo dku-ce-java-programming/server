@@ -37,9 +37,11 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).body(chatService.createConversation());
     }
 
-    @PostMapping(value = "/completion", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/completion", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatCompletionStream(
-            @RequestBody ChatCompletionRequest request) {
+            @RequestParam UUID conversationId,
+            @RequestParam String content) {
+        ChatCompletionRequest request = new ChatCompletionRequest(conversationId, content);
         return chatService.chatCompletionStream(request);
     }
 
