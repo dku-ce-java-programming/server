@@ -58,6 +58,17 @@ public class ChatService {
                 .toList();
     }
 
+    public ConversationResponse getConversation(UUID conversationId) {
+        UserInfo userInfo = MemberUtil.getCurrentUserInfo();
+        Member member = memberRepository.findById(userInfo.getMemberId())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        Conversation conversation = conversationRepository.findByIdAndMemberId(conversationId, member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.CONVERSATION_NOT_FOUND));
+
+        return ConversationResponse.from(conversation);
+    }
+
     public List<MessageResponse> getChatHistory(UUID conversationId) {
         UserInfo userInfo = MemberUtil.getCurrentUserInfo();
         Member member = memberRepository.findById(userInfo.getMemberId())

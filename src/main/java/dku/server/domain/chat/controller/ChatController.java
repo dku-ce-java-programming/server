@@ -27,6 +27,11 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getConversations());
     }
 
+    @GetMapping("/{conversationId}")
+    public ResponseEntity<ConversationResponse> getConversation(@PathVariable UUID conversationId) {
+        return ResponseEntity.ok(chatService.getConversation(conversationId));
+    }
+
     @GetMapping("/{conversationId}/history")
     public ResponseEntity<List<MessageResponse>> getChatHistory(@PathVariable UUID conversationId) {
         return ResponseEntity.ok(chatService.getChatHistory(conversationId));
